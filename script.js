@@ -90,7 +90,18 @@ init();
 //chamar pelo dom o btn
 btn.addEventListener('click', (e) => {
 	e.preventDefault()
+	let id = dummyTransactions.length + 1
 	nameValue = nameDOM.value
-	
-	console.log('clicado')
+	amountValue = amountDOM.value
+
+	transactionAction(id ,nameValue, amountValue)
+	console.log(dummyTransactions)
 })
+console.log(amountDOM)
+
+const transactionAction = (id, name, amount) => {
+	return dummyTransactions.push({ id: id,
+	name: name,
+	amount: amount
+	})
+}
