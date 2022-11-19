@@ -1,10 +1,7 @@
 const transactionsUl = document.querySelector("#transactions");
-const income = document.querySelector("#money-plus");
-const expense = document.querySelector("#money-minus");
-const balance = document.querySelector("#balance");
-const btn = document.querySelector('.btn')
-const nameDOM = document.querySelector('[data-value]')
-const amountDOM = document.querySelector('#amount')
+const incomeDisplay = document.querySelector('#money-plus')
+const expenseDisplay = document.querySelector('#money-minus')
+const balanceDisplay = document.querySelector('#balance')
 
 
 const dummyTransactions = [
@@ -38,70 +35,41 @@ const addTransactionIntoDOM = (transaction) => {
 	transactionsUl.append(li); // isso adiciona como ULTIMO filho PRONTO
 };
 
+
+//-----------------------------Atualizar o Saldo, receita e despesas
+const updateBalanceValues = () => {
+	//fazer um map pq ele é um tipo forEach, só que retorna um novo array só com os values, ai eu uso um reduce pra transformar num valor único
+	const transactionsAmount = dummyTransactions.map(transaction => transaction.amount)
+	const total = transactionsAmount
+		.reduce((accumulator, transaction) => accumulator + transaction, 0).toFixed(2)
+												
+	const income = transactionsAmount
+		.filter(value => value > 0)
+		.reduce((accumulator, transaction) => accumulator +transaction, 0).toFixed(2)
+
+	const expense = transactionsAmount
+	.filter(value => value <0)
+	.reduce((accumulator, transaction) => accumulator +transaction, 0).toFixed(2)
+// até aqui eu consegui já: balançoT, receitaT e despesaT, agora preciso adicionar no dom
+//pra adicionar eu preciso pegar as referências de cada, no caso saldo = h1, receitas = p e despesas = p
+//as referências foram feitas e colocadas lá em cima, no começo. income/expense/balanceDisplay
+
+	balanceDisplay.textContent = `R$ ${total}`
+	incomeDisplay.textContent = `R$ ${income}`
+	expenseDisplay.textContent = `- R$ ${Math.abs(expense)}`
+}
+
+
+
+
+//---------------------------------- init precisa ficar aqui embaixo pq o JS precisa ler as outras funções antes.
 // qnd a pagina for carregada é para chamar as transações armazenadas
 const init = () => {
 	//preciso fazer um loop para iterarar cada transação armazenada no dummyTransactions (q é o objto que guarda id, name, amount)
 	dummyTransactions.forEach(addTransactionIntoDOM);
 	// eu estou chamando o objeto e para CADA item do objeto eu realizo a função que cria li e adc
-
-	// aqui eu fiz o lance de pegar as transações e adicionar em receita ou despesa
-
-	let totalIncome = 0;
-	let totalExpenses = 0;
-	let totalBalance = 0;
-	const incomeAndExpenses = (item) => {
-		const entryOrExpenditure = item.amount;
-		const roundNumber = (number) =>
-			(Math.round(number * 100) / 100).toFixed(2);
-		entryOrExpenditure > 0
-			? (totalIncome += entryOrExpenditure)
-			: (totalExpenses += entryOrExpenditure);
-
-		income.innerHTML = `+ R$${roundNumber(totalIncome)}`;
-		expense.innerHTML = `- R$${Math.abs(roundNumber(totalExpenses))}`;
-	};
-	dummyTransactions.forEach(incomeAndExpenses);
-
-
-//---------------------------Atualizar o saldo -------------------------
-	const updatedBalance = () => {
-		if (totalIncome !== 0 || totalExpenses !== 0) {
-			if (totalIncome > checkWhoIsBigger(totalExpenses)) {
-				totalBalance = totalIncome - -totalExpenses;
-				balance.innerHTML = `R$ ${totalBalance}`;
-			} else {
-				totalBalance = totalExpenses + totalIncome;
-				balance.innerHTML = `- R$ ${Math.abs(totalBalance)}`;
-			}
-		}
-	};
-	updatedBalance();
-};
-
-function checkWhoIsBigger(number) {
-	//eu preciso transformar o numero negativo pra positivo pra checar qm é maior
-	if (number < 0) {
-		return number * -1;
-	}
+	
+//-------------------------------Atualizar o saldo e receita e despesas
+updateBalanceValues()
 }
 init();
-
-//--------------------------adicionar transação----------------------//
-//chamar pelo dom o btn
-btn.addEventListener('click', (e) => {
-	e.preventDefault()
-	let id = dummyTransactions.length + 1
-	nameValue = nameDOM.value
-	amountValue = amountDOM.value
-
-	transactionAction(id ,nameValue, amountValue)
-	console.log(dummyTransactions)
-})
-console.log(amountDOM)
-
-const transactionAction = (id, name, amount) => {
-	return dummyTransactions.push({ id: id,
-	name: name,
-	amount: amount
-	})
-}
