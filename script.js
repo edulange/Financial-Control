@@ -6,13 +6,17 @@ const form = document.querySelector("#form");
 const inputTransactionName = document.querySelector("#text");
 const inputTransactionAmount = document.querySelector("#amount");
 
-const dummyTransactions = [
-	// cada objeto tem um id, name e amount
-	{ id: 1, name: "Bolo de brigadeiro", amount: -20.5 },
-	{ id: 2, name: "Salário", amount: 300 },
-	{ id: 3, name: "Torta de frango", amount: -100 },
-	{ id: 4, name: "Violão", amount: 150 },
-];
+
+//------------------------------ Local Storage--------------------//
+//o qq é?
+//existe um API no storage chamado web storage API, possibilita a gente armazenar dados na aplicação
+const localStorageTransactions = JSON.parse(localStorage
+	.getItem('transactions'))
+let transactions = localStorage
+	.getItem('transactions') !== null ? localStorageTransactions : []
+
+
+//-----------------------------------------------------------
 // precisa agora utilizar o DOM pra jogar na ul vazia, aparecer no
 const addTransactionIntoDOM = (transaction) => {
 	//se é uma receita a classe deve ser plus != minus
@@ -26,7 +30,11 @@ const addTransactionIntoDOM = (transaction) => {
 	//no amountWithoutOperator tem uma situação curiosa, se eu colocar o "operator" e o amount tiver um valor negativo,
 	//vai acontecer de ter - e -, então a gente passa o Math.abs, que retorna o valor absoluto :)
 	li.innerHTML = `                               
-    ${transaction.name} <span>${operator} R$ ${amountWithoutOperator}</span><button class="delete-btn">x</button>
+    ${transaction.name}
+	<span>${operator} R$ ${amountWithoutOperator}</span>
+	<button class="delete-btn" onClick="removeTransaction(${transaction.id})">
+		x
+	</button>
     `;
 	// agora precisa inserir no ul
 	//precisamos então da referencia == transactionsul criada
@@ -40,7 +48,7 @@ const addTransactionIntoDOM = (transaction) => {
 //-----------------------------Atualizar o Saldo, receita e despesas
 const updateBalanceValues = () => {
 	//fazer um map pq ele é um tipo forEach, só que retorna um novo array só com os values, ai eu uso um reduce pra transformar num valor único
-	const transactionsAmount = dummyTransactions.map(
+	const transactionsAmount = transactions.map(
 		(transaction) => transaction.amount
 	);
 	const total = transactionsAmount
@@ -63,20 +71,34 @@ const updateBalanceValues = () => {
 
 	balanceDisplay.textContent = `R$ ${total}`;
 	incomeDisplay.textContent = `R$ ${income}`;
-	expenseDisplay.textContent = `- R$ ${expense}`;
+	expenseDisplay.textContent = ` R$ ${expense}`;
 };
 
 //---------------------------------- init precisa ficar aqui embaixo pq o JS precisa ler as outras funções antes.
 // qnd a pagina for carregada é para chamar as transações armazenadas
 const init = () => {
-	//preciso fazer um loop para iterarar cada transação armazenada no dummyTransactions (q é o objto que guarda id, name, amount)
-	dummyTransactions.forEach(addTransactionIntoDOM);
+	//antes de ser inseridos na ul, vamos limpar a ul (pq qnd eu adicionar um novo, não é pra ele repetir os antigos)
+	transactionsUl.innerHTML = "";
+
+	//preciso fazer um loop para iterarar cada transação armazenada no transactions (q é o objto que guarda id, name, amount)
+	transactions.forEach(addTransactionIntoDOM);
 	// eu estou chamando o objeto e para CADA item do objeto eu realizo a função que cria li e adc
 
 	//-------------------------------Atualizar o saldo e receita e despesas
 	updateBalanceValues();
 };
 init();
+
+
+
+
+// agora vou adicionar ao local storage
+const updateLocalStorage = () => {
+	localStorage.setItem('transactions', JSON.stringify(transactions)) //esse método salva uma informação no local storage
+	//ele tem formato {} e valor, como se fosse um objeto
+} // quando isso tem que ocorrer? quando o form for enviado.
+
+
 
 //pode ser deopis do init, pq só tem ocmo tu enviar um form se já tiver carregado xD
 //------------------------- adicionando uma transação -----------------
@@ -97,16 +119,34 @@ form.addEventListener("submit", (event) => {
 		return; // esse return faz com que, CASO seja lido esse bloco do if, ele da um RETURN e acaba a leitura da função
 	}
 
-	// agora preciso fazer um objeto igual ao dos dummyTransactions
+	// agora preciso fazer um objeto igual ao dos transactions
 	// ou seja, com propriedades: id, value, amount
 	const transaction = {
 		id: generateID(),
 		name: transactionName,
-		amount: Math.floor(transactionAmount) // precisa colocar o Math.floor pq senão ele entende que é uma string, não um num
+		amount: Number(transactionAmount), // precisa transformar para Number ou existe o Math.floor pq senão ele entende que é uma string, não um num
 	};
 	// agora cheguei numa questão, e o valor da propriedade ID? ql vai ser?
 	// vamos fazer através da geração de id's aleatórios (generateID)
 	// agora eu preciso adicionar ele no array dummyTransctions, clássico push
-	dummyTransactions.push(transaction)
-	console.log(dummyTransactions)
+	transactions.push(transaction);
+	// agora só precisa colocar isso dentro da ul, eu já tenho alguem que faça isso, mas quem? a INIT :)
+	// mas ela não pode repetir os negócio né
+	init();
+	updateLocalStorage() //limpar o storage
+
+	// e eu preciso limpar os input values depois de submtido
+	inputTransactionName.value = "";
+	inputTransactionAmount.value = "";
 });
+
+//--------------------------- Tirando uma transação
+
+const removeTransaction = ID => {
+	transactions = transactions.filter(transaction => transaction.id !== ID)
+
+	updateLocalStorage() // pra limpar no storage
+
+	//assim eu clico no X e com o filter eu digo "olha, me filtra todo mundo que tem o ID DIFERENTE do meu"
+	init() // a init faz "reler o bagulho" então como eu filtrei só pelos IDS que não são o q eu cliquei, ele vai desaperecer
+}
