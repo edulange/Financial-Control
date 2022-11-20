@@ -33,8 +33,8 @@ const getExpenses = (transactionsAmount) =>
 	Math.abs(
 		transactionsAmount
 			.filter((value) => value < 0)
-			.reduce((accumulator, transaction) => accumulator + transaction, 0))
-			.toFixed(2);
+			.reduce((accumulator, transaction) => accumulator + transaction, 0)
+	).toFixed(2);
 
 const getIncome = (transactionsAmount) =>
 	transactionsAmount
@@ -67,13 +67,9 @@ const init = () => {
 };
 init();
 
-
 const updateLocalStorage = () => {
-	localStorage.setItem("transactions", JSON.stringify(transactions))
-
-}; 
-
-
+	localStorage.setItem("transactions", JSON.stringify(transactions));
+};
 
 const generateID = () => Math.round(Math.random() * 1000);
 
@@ -91,34 +87,28 @@ const cleanInputs = (input1, input2) => {
 };
 
 const handleFormSubmit = (event) => {
-	event.preventDefault(); //prevenir de realmente enviar (por enquanto)
+	event.preventDefault();
 
 	const transactionName = inputTransactionName.value.trim();
 	const transactionAmount = inputTransactionAmount.value.trim();
 	const isSomeInputEmpty = transactionName === "" || transactionAmount === "";
 
-	//agora preciso ter certeza de que os valores do nome e do vlaor foram realmente preenchidos
-	// logo, preciso da ref dos 2 inputs
 	if (isSomeInputEmpty) {
 		alert("Por favor, preencha tanto o nome quanto o valor da transação");
-		return; // esse return faz com que, CASO seja lido esse bloco do if, ele da um RETURN e acaba a leitura da função
+		return;
 	}
 
 	addToTransactionsArray(transactionName, transactionAmount);
 	init();
 	updateLocalStorage();
-	cleanInputs(inputTransactionName,inputTransactionAmount);
+	cleanInputs(inputTransactionName, inputTransactionAmount);
 };
 
 form.addEventListener("submit", handleFormSubmit);
 
-//--------------------------- Tirando uma transação
-
 const removeTransaction = (ID) => {
-	transactions = transactions.filter((transaction) => transaction.id !== ID);
+	transactions = transactions.filter(({ id }) => id !== ID);
 
-	updateLocalStorage(); // pra limpar no storage
-
-	//assim eu clico no X e com o filter eu digo "olha, me filtra todo mundo que tem o ID DIFERENTE do meu"
-	init(); // a init faz "reler o bagulho" então como eu filtrei só pelos IDS que não são o q eu cliquei, ele vai desaperecer
+	updateLocalStorage();
+	init();
 };

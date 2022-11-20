@@ -150,6 +150,3 @@ const removeTransaction = ID => {
 	//assim eu clico no X e com o filter eu digo "olha, me filtra todo mundo que tem o ID DIFERENTE do meu"
 	init() // a init faz "reler o bagulho" então como eu filtrei só pelos IDS que não são o q eu cliquei, ele vai desaperecer
 }
-
-//https://youtu.be/xarRciYWT5Q?t=3999
-//só falta refatoração
