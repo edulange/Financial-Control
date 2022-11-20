@@ -6,6 +6,11 @@ const form = document.querySelector("#form");
 const inputTransactionName = document.querySelector("#text");
 const inputTransactionAmount = document.querySelector("#amount");
 
+// ------------------------------------ ATENÇÃO--------------------------------
+//existe tb o script "cleancode.js" ai está todo refatorado e bem bonitinho xD
+// eu deixo esse aqui como principal pq eu mostro como eu pensei para realizar
+
+
 
 //------------------------------ Local Storage--------------------//
 //o qq é?
